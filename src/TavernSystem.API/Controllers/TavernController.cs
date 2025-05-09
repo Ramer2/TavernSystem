@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Text.Json.Nodes;
+using Microsoft.AspNetCore.Mvc;
 using TavernSystem.Application;
 
 namespace TavernSystem.API.Controllers;
@@ -32,6 +33,30 @@ public class TavernController : ControllerBase
         if (result == null) return Results.NotFound($"No adventurer with id '{adventurerId}' found in the database.");
         else return Results.Ok(result);
     }
-    
-    
+
+    [HttpPost]
+    [Route("/api/adventurers")]
+    [Consumes("application/json")]
+    public async Task<IResult> RegisterAdventurer()
+    {
+        using var reader = new StreamReader(Request.Body);
+        var rawJson = await reader.ReadToEndAsync();
+
+        var json = JsonNode.Parse(rawJson);
+        if (json == null) return Results.BadRequest("Ivalid JSON format.");
+
+        try
+        {
+            _tavernService.RegisterAdventurer(json);
+        }
+        catch (ArgumentException)
+        {
+            return Results.Forbid();
+        }
+        catch (Exception e)
+        {
+            return Results.BadRequest(e.Message);
+        }
+        return Results.Created();
+    }
 }

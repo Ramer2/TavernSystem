@@ -36,7 +36,7 @@ public class TavernRepository : ITavernRepository
                             Nickname = reader.GetString(1),
                             RaceId = reader.GetInt32(2),
                             ExperienceId = reader.GetInt32(3),
-                            PersonId = reader.GetInt32(4)
+                            PersonId = reader.GetString(4)
                         });
                     }
                 }
@@ -92,5 +92,113 @@ public class TavernRepository : ITavernRepository
             }
         }
         return null;
+    }
+
+    public bool GetBounty(string personId)
+    {
+        const string query = "SELECT P.HasBounty FROM Person P WHERE P.Id = @Id";
+
+        using (SqlConnection connection = new SqlConnection(_connectionString))
+        {
+            SqlCommand command = new SqlCommand(query, connection);
+            command.Parameters.AddWithValue("@Id", personId);
+            connection.Open();
+            
+            SqlDataReader reader = command.ExecuteReader();
+            try
+            {
+                if (reader.HasRows)
+                {
+                    if (reader.Read())
+                    {
+                        return reader.GetBoolean(0);
+                    }
+                }
+            }
+            finally
+            {
+                reader.Close();
+            }
+        }
+
+        throw new ApplicationException($"No person with id {personId} was found.");
+    }
+
+    public bool AdventurerExists(string personId)
+    {
+        const string query = "SELECT * FROM Adventurer A WHERE A.PersonId = @Id";
+
+        using (SqlConnection connection = new SqlConnection(_connectionString))
+        {
+            SqlCommand command = new SqlCommand(query, connection);
+            command.Parameters.AddWithValue("@Id", personId);
+            connection.Open();
+            
+            SqlDataReader reader = command.ExecuteReader();
+            try
+            {
+                return reader.HasRows;
+            }
+            finally
+            {
+                reader.Close();
+            }
+        }
+    }
+
+    public bool AddAdventurer(Adventurer adventurer)
+    {
+        using (SqlConnection connection = new SqlConnection(_connectionString))
+        {
+            connection.Open();
+            SqlTransaction transaction = connection.BeginTransaction();
+
+            try
+            {
+                var maxIdQuery = "SELECT MAX(Id) FROM Adventurer";
+                var maxId = 0;
+                SqlCommand idCommand = new SqlCommand(maxIdQuery, connection, transaction);
+                SqlDataReader reader = idCommand.ExecuteReader();
+
+                try
+                {
+                    if (reader.Read())
+                    {
+                        maxId = reader.GetInt32(0);
+                    }
+                }
+                finally
+                {
+                    reader.Close();
+                }
+
+                // set the id
+                adventurer.Id = maxId + 1;
+
+                var insertAdventurerResult = -1;
+                var insertAdventurerQuery =
+                    "INSERT INTO Adventurer VALUES (@Id, @Nickname, @RaceId, @ExperienceId, @PersonId)";
+
+                SqlCommand command = new SqlCommand(insertAdventurerQuery, connection, transaction);
+                command.Parameters.AddWithValue("@Id", adventurer.Id);
+                command.Parameters.AddWithValue("@Nickname", adventurer.Nickname);
+                command.Parameters.AddWithValue("@RaceId", adventurer.RaceId);
+                command.Parameters.AddWithValue("@ExperienceId", adventurer.ExperienceId);
+                command.Parameters.AddWithValue("@PersonId", adventurer.PersonId);
+
+                insertAdventurerResult = command.ExecuteNonQuery();
+                if (insertAdventurerResult == -1)
+                    throw new ApplicationException("Failed to insert adventurer.");
+
+                transaction.Commit();
+            }
+            catch
+            {
+                transaction.Rollback();
+                throw;
+            }
+        }
+
+        return true;
     }
 }
