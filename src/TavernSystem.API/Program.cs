@@ -1,7 +1,11 @@
+using TavernSystem.Application;
+using TavernSystem.Repositories;
+
 var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = builder.Configuration.GetConnectionString("TavernDatabase");
-
+builder.Services.AddTransient<ITavernRepository>(tavernRepository => new TavernRepository(connectionString));
+builder.Services.AddTransient<ITavernService, TavernService>();
 
 // Add services to the container.
 

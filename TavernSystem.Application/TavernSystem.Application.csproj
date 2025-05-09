@@ -6,4 +6,9 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\src\TavernSystem.Models\TavernSystem.Models.csproj" />
+      <ProjectReference Include="..\src\TavernSystem.Repositories\TavernSystem.Repositories.csproj" />
+    </ItemGroup>
+
 </Project>
