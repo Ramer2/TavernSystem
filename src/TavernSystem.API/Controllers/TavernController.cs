@@ -16,16 +16,21 @@ public class TavernController : ControllerBase
     }
 
     [HttpGet]
+    [Route("/api/adventurers")]
     public IResult GetAllAdventurers()
     {
-        return Results.NotFound();
+        var result = _tavernService.GetAllAdventurers();
+        if (result.Count == 0) return Results.NotFound("No adventurers found in the database.");
+        else return Results.Ok(result);
     }
     
     [HttpGet]
     [Route("/api/adventurers/{adventurerId}")]
     public IResult GetAdventurerById(int adventurerId)
     {
-        return Results.NotFound();
+        var result = _tavernService.GetSpecificAdventurerDtoById(adventurerId);
+        if (result == null) return Results.NotFound($"No adventurer with id '{adventurerId}' found in the database.");
+        else return Results.Ok(result);
     }
     
     

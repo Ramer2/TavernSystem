@@ -14,11 +14,22 @@ public class TavernService : ITavernService
 
     public List<AllAdventurersDto> GetAllAdventurers()
     {
-        throw new NotImplementedException();
+        var adventurers = _tavernRepository.GetAllAdventurers();
+        var result = new List<AllAdventurersDto>();
+
+        foreach (var adventurer in adventurers)
+        {
+            result.Add(new AllAdventurersDto
+            {
+                Id = adventurer.Id,
+                Nickname = adventurer.Nickname
+            });
+        }
+        return result;
     }
 
-    public SpecificAdventurerDto GetAdventurerById(int adventurerId)
+    public SpecificAdventurerDto GetSpecificAdventurerDtoById(int adventurerId)
     {
-        throw new NotImplementedException();
+        return _tavernRepository.GetSpecificAdventurerDtoById(adventurerId);
     }
 }

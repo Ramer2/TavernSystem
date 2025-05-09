@@ -6,5 +6,5 @@ public interface ITavernService
 {
     public List<AllAdventurersDto> GetAllAdventurers();
 
-    public SpecificAdventurerDto GetAdventurerById(int adventurerId);
+    public SpecificAdventurerDto GetSpecificAdventurerDtoById(int adventurerId);
 }

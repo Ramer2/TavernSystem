@@ -1,6 +1,11 @@
-﻿namespace TavernSystem.Repositories;
+﻿using TavernSystem.Models.dtos;
+using TavernSystem.Models.models;
 
-public class ITavernRepository
+namespace TavernSystem.Repositories;
+
+public interface ITavernRepository
 {
-    
+    public List<Adventurer> GetAllAdventurers();
+
+    public SpecificAdventurerDto GetSpecificAdventurerDtoById(int adventurerId);
 }
